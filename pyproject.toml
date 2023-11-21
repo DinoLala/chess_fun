@@ -8,7 +8,7 @@ version = "1.0.0"
 
 description = "A fun page for who love chess"
 authors = [
-  "susan2004.nguyen@gmail.com",
+  Trang Nguyen <susan2004.nguyen@gmail.com>
 ]
 readme = "README.md"
 
