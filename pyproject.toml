@@ -3,7 +3,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "streamlit-extras"
+name = "chess fun"
 version = "1.0.0"
 
 description = "A fun page for who love chess"
