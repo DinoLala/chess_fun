@@ -8,8 +8,7 @@ import streamlit as st
 
 
 import requests
-from bs4 import BeautifulSoup
-import pandas as pd
+
 
 class process_html(object):
     def read_text(self, html_file):
@@ -237,21 +236,21 @@ with st.container():
         
         for r in range(int(tour_rounds/3)+1):
             if r*3+1 <=tour_rounds:
-                intput_rating1=st.number_input('rate'+str(r*3+1),min_value=0, max_value=3000, step=1 )
+                intput_rating1=st.number_input('Rating '+str(r*3+1),min_value=0, max_value=3000, step=1 )
                 opponent_list.append(intput_rating1)
 
 
     with col2:
         for r in range(int(tour_rounds/3)+1):
             if r*3+2 <=tour_rounds:
-                intput_rating1=st.number_input('rate'+str(r*3+2),min_value=0, max_value=3000, step=1 )
+                intput_rating1=st.number_input('Rating '+str(r*3+2),min_value=0, max_value=3000, step=1 )
                 opponent_list.append(intput_rating1)
         
 
     with col3:
         for r in range(int(tour_rounds/3)):
             if r*3+3 <=tour_rounds:
-                intput_rating1=st.number_input('rate'+str(r*3+3),min_value=0, max_value=3000, step=1 )
+                intput_rating1=st.number_input('Rating '+str(r*3+3),min_value=0, max_value=3000, step=1 )
                 opponent_list.append(intput_rating1)
     
     est_submit=st.button('Est Post Rating')
