@@ -1,8 +1,2 @@
-mkdocs>=1.1
-mkdocs-gen-files
-mkdocs-literate-nav
-mkdocs-material>=5.0
-mkdocstrings
-mkdocstrings-python
-pymdown-extensions
--e ./
+numpy==1.22.0
+pandas==1.4.1
