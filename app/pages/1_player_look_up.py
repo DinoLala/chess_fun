@@ -258,6 +258,7 @@ if submited and uscf_id !="":
             st.write(dict_out['Name'])
             # st.write('Gender:',dict_out['Gender'])
             st.write('State:',dict_out['State'])
+            # if "none" not in dict_out['title_name']:
             st.write('Current Title:',dict_out['title_name'])
 
             
@@ -287,6 +288,7 @@ if submited and uscf_id !="":
         st.write('This player has no norm yet!')
     else:
         norm_df=norm_df.sort_values(by=['level'])
+        norm_df.columns=['Norm','Norm count']
         st.dataframe(norm_df.tail(1))
     # st.markdown("""<hr style="height:10px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)
     st.divider() 
