@@ -3,6 +3,10 @@ from importlib import import_module
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 # from app.common.search import process_html, get_player,get_tournaments,get_norm_summary
 import streamlit as st
 
@@ -198,22 +202,23 @@ st.sidebar.write('* Rating 1400: 3rd Category (3)' )
 st.sidebar.write('* Rating 1200: 4th Category (4)' )
 
 
-col1, col2 = st.columns(2)
-with col1:
+col10, col20= st.columns(2)
+with col10:
 
     st.image("app/data/chess.png")
     # st.image("app/data/chess2.png")
     uscf_id=st.text_input('USCF_ID' ,value='')
     
-with col2:
+with col20:
 
     # st.header(":orange[PLAYER LOOK UP]")
     # st.title(":orange[!!!]")
     # st.title(":orange[Never gonna give you up, Never gonna let you down!!!]")
     st.title(":orange[Happy player!!!]")
+    st.title("")
 
     # st.title(":orange[This is for my beloved son. Have Funs !!!]")
-    col11, col21,col23 = st.columns(3)
+    # col11, col21,col23 = st.columns(3)
     # with col21 :
     #     st.image("app/data/happy-dance-excited.gif")
     
@@ -233,9 +238,6 @@ if submited and uscf_id !="":
 
     st.divider() 
     st.header(":orange[Player Summary !]")
-    # st.markdown(
-    #     ":orange[Player Summary !]"
-    # )
 
     with st.container():
         # st.write("This is inside the container")
@@ -293,15 +295,44 @@ if submited and uscf_id !="":
     # st.markdown("""<hr style="height:10px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)
     st.divider() 
 
-    # st.write('Lastest Tournaments:':orange[orange])
-
     st.header(":orange[Lastest Tournaments!]")
-    # st.markdown(
-    #     ":orange[Lastest Tournaments !]"
-    # )
-
-
+ 
 
     html_tables=get_tournaments(h,uscf_id)
-    st.dataframe(html_tables, width=1600, height=300)
+    st.dataframe(html_tables[['End_event_date','Event_name','reg Rtg Before/After']], width=1600, height=600)
+    try:
+        html_tables=html_tables.sort_values(by='End_event_date', ascending=True)
+        html_tables['rating']=html_tables['reg Rtg Before/After'].apply(lambda x: x.split('=>')[-1].split('(')[0] if "ONL" not in x else '')
+        df_temp=html_tables[['rating','End_event_date']].copy()
+        df_temp=df_temp.loc[(df_temp['rating']!=' ') ]
+        df_temp=df_temp.loc[(df_temp['rating']!='') ]
+        # st.write(df_temp)
+        df_temp['rating']=df_temp['rating'].astype('int')
+        df_temp.index=df_temp['End_event_date']
+    except:
+        pass
+  
+
+
+    with col20:
+
+        # How to set the graph size 
+        
+        try:
+            two_subplot_fig = plt.figure(figsize=(6,6),facecolor='lightblue')
+            plt.subplot(211)
+            plt.plot(df_temp['End_event_date'] ,df_temp['rating'] , color='tab:blue', marker='.')
+            plt.xticks(rotation=30)
+            x_stick=[df_temp['End_event_date'][i] for i  in range(len(df_temp['End_event_date'])) if i%5 == 0 ]
+            plt.xticks(x_stick)
+            plt.grid()
+            plt.title('Rating trend')
+            st.pyplot(two_subplot_fig)
+
+
+            # st.line_chart(df_temp['rating']    )
+            # st.altair_chart(l_rate    )
+        except:
+            pass
+
 
