@@ -37,14 +37,18 @@ with col10:
     with open(json_file_path, 'r') as j:
         df_common_players = json.loads(j.read())
     
-    common_list=list(df_common_players.keys())
+    common_list=[ c for c in df_common_players.keys() if c !='DUY TUONG NGUYEN'] 
+    common_list.sort()
+    common_list.insert(0,'DUY TUONG NGUYEN')
     common_list.insert(0,'none')
     # for idx, row in df_common_players.items():
-    common_player = st.selectbox( 'Favor Player?',common_list)
-    if common_player =='none':
-        uscf_id=st.text_input('USCF_ID' ,value='')
-    else:
-        uscf_id=df_common_players[common_player]
+    col1, col2= st.columns(2)
+    with col1:
+        common_player = st.selectbox( 'Favor Player?',common_list)
+        if common_player =='none':
+            uscf_id=st.text_input('USCF_ID' ,value='')
+        else:
+            uscf_id=df_common_players[common_player]
     
 with col20:
 
@@ -65,7 +69,6 @@ if submited and uscf_id !="":
     st.header(":orange[Player Summary !]")
 
     with st.container():
-        # st.write("This is inside the container")
         col1, col2, col3 = st.columns(3)
         
 
@@ -77,15 +80,7 @@ if submited and uscf_id !="":
             st.write('State:',dict_out['State'])
             # if "none" not in dict_out['title_name']:
             st.write('Current Title:',dict_out['title_name'])
-
-            
-            
-            
-            #    st.image("https://static.streamlit.io/examples/cat.jpg")
-
         with col2:
-            #    st.header("A dog")
-            # st.write('State:',dict_out['State'])
             
             st.write('Current USCF Rating:', dict_out['current_rating'])
             st.write('Next month USCF Rating:', dict_out['nextmonth_rate'])
@@ -106,7 +101,7 @@ if submited and uscf_id !="":
     else:
         norm_df=norm_df.sort_values(by=['level'])
         norm_df.columns=['Norm','Norm count']
-        st.dataframe(norm_df.tail(1))
+        st.dataframe(norm_df.tail(5))
     # st.markdown("""<hr style="height:10px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)
     st.divider() 
 
@@ -114,16 +109,32 @@ if submited and uscf_id !="":
  
 
     html_tables=get_tournaments(h,uscf_id)
-    st.dataframe(html_tables[['End_event_date','Event_name','reg Rtg Before/After']], width=1600, height=600)
+    # st.dataframe(html_tables[['End_event_date','Event_name','reg Rtg Before/After']], width=1600, height=600)
+    st.dataframe(html_tables, width=1600, height=400)
     try:
         html_tables=html_tables.sort_values(by='End_event_date', ascending=True)
         html_tables['rating']=html_tables['reg Rtg Before/After'].apply(lambda x: x.split('=>')[-1].split('(')[0] if "ONL" not in x else '')
+        
+        html_tables['quick_rating']=html_tables['Quick Rtg Before/After'].apply(lambda x: x.split('=>')[-1].split('(')[0] if "ONL" not in x else '')
+        
         df_temp=html_tables[['rating','End_event_date']].copy()
+        df_temp_quick=html_tables[['End_event_date','quick_rating']].copy()
+
         df_temp=df_temp.loc[(df_temp['rating']!=' ') ]
         df_temp=df_temp.loc[(df_temp['rating']!='') ]
+
+        df_temp_quick=df_temp_quick.loc[(df_temp_quick['quick_rating']!=' ') ]
+        df_temp_quick=df_temp_quick.loc[(df_temp_quick['quick_rating']!='') ]
         # st.write(df_temp)
         df_temp['rating']=df_temp['rating'].astype('int')
         df_temp.index=df_temp['End_event_date']
+
+        df_temp_quick['quick_rating']=df_temp_quick['quick_rating'].astype('int')
+        df_temp_quick.index=df_temp_quick['End_event_date']
+
+        # df_temp=df_temp.merge(df_temp_quick, how='outer', on='End_event_date')
+
+
     except:
         pass
   
@@ -136,7 +147,9 @@ if submited and uscf_id !="":
         try:
             two_subplot_fig = plt.figure(figsize=(6,6),facecolor='lightblue')
             plt.subplot(211)
-            plt.plot(df_temp['End_event_date'] ,df_temp['rating'] , color='tab:blue', marker='.')
+            plt.plot(df_temp['End_event_date'] ,df_temp['rating'] , color='tab:orange', marker='.')
+            # plt.subplot(212)
+            # plt.plot(df_temp['End_event_date'] ,df_temp['quick_rating'] , color='tab:blue', marker='.')
             plt.xticks(rotation=30)
             x_stick=[df_temp['End_event_date'][i] for i  in range(len(df_temp['End_event_date'])) if i%5 == 0 ]
             plt.xticks(x_stick)
@@ -144,9 +157,6 @@ if submited and uscf_id !="":
             plt.title('Rating trend')
             st.pyplot(two_subplot_fig)
 
-
-            # st.line_chart(df_temp['rating']    )
-            # st.altair_chart(l_rate    )
         except:
             pass
 

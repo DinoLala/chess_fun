@@ -225,7 +225,8 @@ if submited and uscf_id !="":
  
 
     html_tables=get_tournaments(h,uscf_id)
-    st.dataframe(html_tables[['End_event_date','Event_name','reg Rtg Before/After']], width=1600, height=600)
+    # st.dataframe(html_tables[['End_event_date','Event_name','reg Rtg Before/After']], width=1600, height=600)
+    st.dataframe(html_tables, width=1600, height=600)
     try:
         html_tables=html_tables.sort_values(by='End_event_date', ascending=True)
         html_tables['rating']=html_tables['reg Rtg Before/After'].apply(lambda x: x.split('=>')[-1].split('(')[0] if "ONL" not in x else '')
