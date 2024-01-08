@@ -58,7 +58,7 @@ with col10:
         else:
             uscf_id=df_common_players[common_player]
         more_tour_info=st.selectbox('More info' ,['none','recent tournaments', 'recent games'])
-        refresh_info=st.selectbox('Update infor' ,['no','yes'])
+        refresh_info=st.selectbox('Update infor(* not recommend)' ,['no','yes'])
     
 with col20:
 
@@ -108,9 +108,9 @@ if submited and uscf_id !="":
 
         dict_out=get_player(h,uscf_id)
         with col1:
-            #    st.header("A cat")
+
             st.write(dict_out['Name'])
-            # st.write('Gender:',dict_out['Gender'])
+            st.write('Gender:',dict_out['Gender'])
             st.write('State:',dict_out['State'])
             # if "none" not in dict_out['title_name']:
             st.write('Current Title:',dict_out['title_name'])
@@ -145,9 +145,6 @@ if submited and uscf_id !="":
     
 
         html_tables=get_tournaments(h,uscf_id)
-        # st.dataframe(html_tables[['End_event_date','Event_name','reg Rtg Before/After']], width=1600, height=600)
-    
-        print(html_tables.columns)
         
         df_all_games=get_all_games(uscf_id)
 
@@ -198,31 +195,32 @@ if submited and uscf_id !="":
 
     try:
         html_tables=html_tables.sort_values(by='End_event_date', ascending=True)
-        html_tables['rating']=html_tables['reg Rtg Before/After'].apply(lambda x: x.split('=>')[-1].split('(')[0] if "ONL" not in x else '')
+        print('-----',html_tables.dtypes)
+        html_tables['reg Rtg Before/After']=html_tables['reg Rtg Before/After'].astype(str)
+        df_temp=html_tables.loc[~html_tables['reg Rtg Before/After'].str.contains("ONL")]
+        print(df_temp)
+
+        df_temp['rating']=df_temp['reg Rtg Before/After'].apply(lambda x: x.split('=>')[-1].split('(')[0] if "ONL" not in x else '')
         
-        html_tables['quick_rating']=html_tables['Quick Rtg Before/After'].apply(lambda x: x.split('=>')[-1].split('(')[0] if "ONL" not in x else '')
+        # df_temp['quick_rating']=df_temp['Quick Rtg Before/After'].apply(lambda x: x.split('=>')[-1].split('(')[0] if "ONL" not in x else '')
         
-        df_temp=html_tables[['rating','End_event_date']].copy()
-        df_temp_quick=html_tables[['End_event_date','quick_rating']].copy()
+        df_temp=df_temp[['rating','End_event_date']].copy().dropna()
+        # df_temp_quick=html_tables[['End_event_date','quick_rating']].copy()
 
         df_temp=df_temp.loc[(df_temp['rating']!=' ') ]
         df_temp=df_temp.loc[(df_temp['rating']!='') ]
+        df_temp=df_temp.loc[~df_temp['rating'].str.contains("nan")]
+        # print('========================')
+        # print(df_temp)
+        # print('========================')
 
-        df_temp_quick=df_temp_quick.loc[(df_temp_quick['quick_rating']!=' ') ]
-        df_temp_quick=df_temp_quick.loc[(df_temp_quick['quick_rating']!='') ]
-        # st.write(df_temp)
         df_temp['rating']=df_temp['rating'].astype('int')
         df_temp.index=df_temp['End_event_date']
 
-        df_temp_quick['quick_rating']=df_temp_quick['quick_rating'].astype('int')
-        df_temp_quick.index=df_temp_quick['End_event_date']
-
-        # df_temp=df_temp.merge(df_temp_quick, how='outer', on='End_event_date')
-
-
     except:
+        print('----------ERRROR ')
         pass
-  
+
 
 
     with col20:
