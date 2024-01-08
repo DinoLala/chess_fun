@@ -125,9 +125,24 @@ if submited and uscf_id !="":
     df_all_games=df_all_games.drop_duplicates()
     df_all_games=df_all_games[['End_event_date','Event',	'Section',	'round','color','Oponent USCF'	,'Oponent name','Rating','Result']]
     df_all_games=df_all_games.sort_values(by=['End_event_date','round'], ascending= False)
+    st.write(':orange[summary of last 50 regular games]')
+    df_top=df_all_games.head(50)
+    df_top['opp_rating']=df_top['Rating'].apply(lambda x: x.split('=>')[1].split('(')[0]).astype(float)
+    df_top_w=df_top.loc[df_top['Result']=="W"]
+    df_top_d=df_top.loc[df_top['Result']=="D"]
+    df_top_l=df_top.loc[df_top['Result']=="L"]
+    df_w=pd.DataFrame(df_top_w['opp_rating'].describe()).rename(columns={'opp_rating':'Win'})
+    df_d=pd.DataFrame(df_top_d['opp_rating'].describe()).rename(columns={'opp_rating':'Draw'})
+    df_l=pd.DataFrame(df_top_l['opp_rating'].describe()).rename(columns={'opp_rating':'Lose'})
+    # df_100_des=df_top['Result'].value_counts().reset_index()
+    df_summary=pd.concat( [df_w,df_d,df_l], axis=1)
+    # print('---------',df_top_w)
+    # print(df_summary)
+    st.dataframe(df_summary, width=1200, height=400)
     
     if more_tour_info=='recent games':
-        st.write(':orange[All games recently ( from last 50 tournaments)]')
+        
+
         st.dataframe(df_all_games, width=1600, height=400)
     elif more_tour_info =='recent tournaments':
         st.write(":orange[Lastest Tournaments!]")
