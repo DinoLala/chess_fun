@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from app.common.search import process_html, get_player,get_tournaments,get_norm_summary
+from app.common.search import process_html, get_player,get_tournaments,get_norm_summary,get_all_games
 import streamlit as st
 
 import requests
@@ -49,6 +49,7 @@ with col10:
             uscf_id=st.text_input('USCF_ID' ,value='')
         else:
             uscf_id=df_common_players[common_player]
+        more_tour_info=st.selectbox('More info' ,['none','recent tournaments', 'recent games'])
     
 with col20:
 
@@ -59,7 +60,8 @@ h=process_html()
 
 
 submited=st.button('Find player')
-url = "https://new.uschess.org/players/search"
+# url = "https://new.uschess.org/players/search"
+url='https://www.uschess.org/msa/MbrDtlMain.php?'+uscf_id
 # st.write("check out this [link](%s)" % url)
 st.write(":orange[Visit [website ](%s) for official player rating look up]" % url)
 
@@ -110,7 +112,30 @@ if submited and uscf_id !="":
 
     html_tables=get_tournaments(h,uscf_id)
     # st.dataframe(html_tables[['End_event_date','Event_name','reg Rtg Before/After']], width=1600, height=600)
-    st.dataframe(html_tables, width=1600, height=400)
+   
+    print(html_tables.columns)
+    
+    df_all_games=get_all_games(uscf_id)
+    print(df_all_games.columns)
+    html_tables['short_event2']=html_tables['Event_name'].apply(lambda  x: x.split(':')[0][:-5].replace(' ',''))
+    # st.dataframe(html_tables, width=1600, height=400)
+    df_all_games['short_event']=df_all_games['Event'].apply(lambda  x: x.replace(' ',''))
+    # df_all_games['short_event']=df_all_games['Event'].apply(lambda  x: x if len(x) <10 else x[:10])
+    df_all_games=df_all_games.merge(html_tables[['short_event2','End_event_date']], how='left', left_on='short_event', right_on='short_event2')
+    df_all_games=df_all_games.drop_duplicates()
+    df_all_games=df_all_games[['End_event_date','Event',	'Section',	'round','color','Oponent USCF'	,'Oponent name','Rating','Result']]
+    df_all_games=df_all_games.sort_values(by=['End_event_date','round'], ascending= False)
+    
+    if more_tour_info=='recent games':
+        st.write(':orange[All games recently ( from last 50 tournaments)]')
+        st.dataframe(df_all_games, width=1600, height=400)
+    elif more_tour_info =='recent tournaments':
+        st.write(":orange[Lastest Tournaments!]")
+        st.dataframe(html_tables, width=1600, height=400)
+
+
+    # df_all_games
+
     try:
         html_tables=html_tables.sort_values(by='End_event_date', ascending=True)
         html_tables['rating']=html_tables['reg Rtg Before/After'].apply(lambda x: x.split('=>')[-1].split('(')[0] if "ONL" not in x else '')

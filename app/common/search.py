@@ -147,6 +147,46 @@ def get_tournaments(h,uscf_id):
     return html_tables
     
 
+def get_all_games(uscf_id):
+    my_url='https://www.uschess.org/datapage/gamestats.php?memid=30581110&ptype=G&rs=R&dkey=1300&drill=G'
+    rate_list=['UNR','100','200','300','400','500','600','700','800','900',
+            '1000','1100','1200','1300','1400','1500'
+            ,'1600','1700','1800','1900','2000','2100','2200','2300','2400','2500','2600','2700','2800']
+    df_all_games=pd.DataFrame()
+    for r in rate_list:
+    # for r in ['1700']:
+        # print(r)
+        my_url='https://www.uschess.org/datapage/gamestats.php?memid='+uscf_id+'&ptype=G&rs=R&dkey='+r+'&drill=G'
+        try:
+            re = requests.get(my_url)
+            # print(re.text)
+            text_file=re.text
+
+            soup = BeautifulSoup(text_file, "lxml")
+            tables=[
+                [
+                    [
+                        td.get_text(strip=True) for td in tr.find_all('td')
+                    ]
+                    for tr in table.find_all('tr')
+                ]
+                for table in soup.find_all('table')
+            ]
+            if tables[-1]==[]:
+                tables.pop(-1)
+            df=pd.DataFrame(tables[-3][:])
+            df=df.rename(columns=df.iloc[0])
+            df=df.dropna()
+            # print(df)
+            df.columns=['Event',	'Section',	'round','color','Oponent USCF'	,'Oponent name','Rating','Result']
+            
+            
+            df_all_games=pd.concat([df_all_games,df], axis=0)
+        except:
+            # print('not found', r)
+            pass
+    return df_all_games
+
 def get_norm_summary(h,uscf_id):
     norm_url='https://www.uschess.org/datapage/norms-list.php?'+uscf_id
     re = requests.get(norm_url)

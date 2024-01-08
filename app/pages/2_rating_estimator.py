@@ -129,7 +129,13 @@ with st.container():
                     st.write(f'Expected norm {max_norm}: :orange[{norm_dict[max_norm]}]')
 
             
-            st.header(f'Your estimated post tournament rating is :orange[{final_est_post}    ] ')
+            
+            if final_est_post > current_rating:
+                st.header(f'Your estimated post tournament rating is :green[{final_est_post} ]  increased by :green[{final_est_post-current_rating}    ] ')
+                # st.header(f'You may increase your rating by  :green[{final_est_post-current_rating}    ] ')
+            else:
+                st.header(f'Your estimated post tournament rating is :orange[{final_est_post}] dropped by :orange[{final_est_post-current_rating}     ] ')
+
 
             
 
