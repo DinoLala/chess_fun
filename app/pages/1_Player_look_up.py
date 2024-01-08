@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pickle 
 
 from app.common.search import process_html, get_player,get_tournaments,get_norm_summary,get_all_games
 import streamlit as st
@@ -80,9 +81,21 @@ if submited and uscf_id !="":
             # if p =="SARAH NGUYEN":
             uscf_id=df_common_players[p]
             df_all_games=get_all_games(uscf_id)
-            html_tables=get_tournaments(h,uscf_id)
-            df_all_games.to_csv('app/data/players/allgames'+uscf_id+'.csv')
-            html_tables.to_csv('app/data/players/tournament'+uscf_id+'.csv')
+            # html_tables=get_tournaments(h,uscf_id)
+            # df_all_games.to_csv('app/data/players/allgames'+uscf_id+'.csv')
+            # html_tables.to_csv('app/data/players/tournament'+uscf_id+'.csv')
+
+            dict_out=get_player(h,uscf_id)
+            norm_df=get_norm_summary(h,uscf_id)
+            norm_df.to_csv('app/data/players/norm'+uscf_id+'.csv')
+            # dict_out.to_csv('app/data/players/norm'+uscf_id+'.csv')
+            
+
+            with open('app/data/players/meta_dict'+uscf_id+'.pkl', 'wb') as f:
+                pickle.dump(dict_out, f)
+                    
+            
+
 
 
 
@@ -115,24 +128,22 @@ if submited and uscf_id !="":
             st.write('Junior Ranking:', dict_out['Junior_Ranking'])
 
 
-    norm_df=get_norm_summary(h,uscf_id)
-    st.write(':orange[Lastest Norm:]')
-    if len(norm_df)==0:
-        st.write('This player has no norm yet!')
-    else:
-        norm_df=norm_df.sort_values(by=['level'])
-        norm_df.columns=['Norm','Norm count']
-        st.dataframe(norm_df.tail(5))
-    # st.markdown("""<hr style="height:10px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)
-    st.divider() 
-
-    st.header(":orange[Lastest Tournaments!]")
+    
     
     if common_player !='none':
         df_all_games=pd.read_csv('app/data/players/allgames'+uscf_id+'.csv')
         html_tables=pd.read_csv('app/data/players/tournament'+uscf_id+'.csv')
+        with open('app/data/players/meta_dict'+uscf_id+'.pkl', 'rb') as f:
+            dict_out = pickle.load(f)
+        norm_df=pd.read_csv('app/data/players/norm'+uscf_id+'.csv', index_col=0)
+        # print(norm_df)
 
     else:
+        norm_df=get_norm_summary(h,uscf_id)
+       
+        # st.markdown("""<hr style="height:10px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)
+    
+
         html_tables=get_tournaments(h,uscf_id)
         # st.dataframe(html_tables[['End_event_date','Event_name','reg Rtg Before/After']], width=1600, height=600)
     
@@ -140,7 +151,17 @@ if submited and uscf_id !="":
         
         df_all_games=get_all_games(uscf_id)
 
+    st.write(':orange[Lastest Norm:]')
+    if len(norm_df)==0:
+        st.write('This player has no norm yet!')
+    else:
+        norm_df=norm_df.sort_values(by=['level'])
+        norm_df.columns=['Norm','Norm count']
+        st.dataframe(norm_df.tail(5))
 
+    st.divider() 
+
+    st.header(":orange[Lastest Tournaments!]")
 
     print(df_all_games.columns)
     html_tables['short_event2']=html_tables['Event_name'].apply(lambda  x: x.split(':')[0][:-5].replace(' ',''))
@@ -161,10 +182,7 @@ if submited and uscf_id !="":
         df_w=pd.DataFrame(df_top_w['opp_rating'].describe()).rename(columns={'opp_rating':'Win'})
         df_d=pd.DataFrame(df_top_d['opp_rating'].describe()).rename(columns={'opp_rating':'Draw'})
         df_l=pd.DataFrame(df_top_l['opp_rating'].describe()).rename(columns={'opp_rating':'Lose'})
-        # df_100_des=df_top['Result'].value_counts().reset_index()
         df_summary=pd.concat( [df_w,df_d,df_l], axis=1)
-        # print('---------',df_top_w)
-        # print(df_summary)
         st.dataframe(df_summary, width=1200, height=400)
     
     if more_tour_info=='recent games':
@@ -173,10 +191,10 @@ if submited and uscf_id !="":
         st.dataframe(df_all_games, width=1600, height=400)
     elif more_tour_info =='recent tournaments':
         st.write(":orange[Lastest Tournaments!]")
-        st.dataframe(html_tables, width=1600, height=400)
+        col_keep=[c for c in list(html_tables) if 'short' not in c and "Unname" not in c]
+        html_tables_out=html_tables[col_keep]
+        st.dataframe(html_tables_out, width=1600, height=400)
 
-
-    # df_all_games
 
     try:
         html_tables=html_tables.sort_values(by='End_event_date', ascending=True)
