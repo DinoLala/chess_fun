@@ -24,18 +24,25 @@ st.sidebar.write('* Rating 1600: 2nd Category (2)' )
 st.sidebar.write('* Rating 1400: 3rd Category (3)' )
 st.sidebar.write('* Rating 1200: 4th Category (4)' )
 
-
+h=process_html()
 
 col10, col20= st.columns(2)
 # favorite players ----
 import json 
+json_file_path = 'app/data/common_players.json'
+
+with open(json_file_path, 'r') as j:
+    df_common_players = json.loads(j.read())
+
+favor_list=df_common_players.keys()
+# load recent games 
+
+
+    
 with col10:
 
     st.image("app/data/chess.png")
-    json_file_path = 'app/data/common_players.json'
 
-    with open(json_file_path, 'r') as j:
-        df_common_players = json.loads(j.read())
     
     common_list=[ c for c in df_common_players.keys() if c !='DUY TUONG NGUYEN'] 
     common_list.sort()
@@ -50,13 +57,14 @@ with col10:
         else:
             uscf_id=df_common_players[common_player]
         more_tour_info=st.selectbox('More info' ,['none','recent tournaments', 'recent games'])
+        refresh_info=st.selectbox('Update infor' ,['no','yes'])
     
 with col20:
 
     st.title(":orange[Happy player!!!]")
     st.title("")
 
-h=process_html()
+
 
 
 submited=st.button('Find player')
@@ -66,6 +74,17 @@ url='https://www.uschess.org/msa/MbrDtlMain.php?'+uscf_id
 st.write(":orange[Visit [website ](%s) for official player rating look up]" % url)
 
 if submited and uscf_id !="":
+    if refresh_info =='yes':
+        for p in favor_list:
+            # if p !='none':
+            # if p =="SARAH NGUYEN":
+            uscf_id=df_common_players[p]
+            df_all_games=get_all_games(uscf_id)
+            html_tables=get_tournaments(h,uscf_id)
+            df_all_games.to_csv('app/data/players/allgames'+uscf_id+'.csv')
+            html_tables.to_csv('app/data/players/tournament'+uscf_id+'.csv')
+
+
 
     st.divider() 
     st.header(":orange[Player Summary !]")
@@ -108,37 +127,45 @@ if submited and uscf_id !="":
     st.divider() 
 
     st.header(":orange[Lastest Tournaments!]")
- 
-
-    html_tables=get_tournaments(h,uscf_id)
-    # st.dataframe(html_tables[['End_event_date','Event_name','reg Rtg Before/After']], width=1600, height=600)
-   
-    print(html_tables.columns)
     
-    df_all_games=get_all_games(uscf_id)
+    if common_player !='none':
+        df_all_games=pd.read_csv('app/data/players/allgames'+uscf_id+'.csv')
+        html_tables=pd.read_csv('app/data/players/tournament'+uscf_id+'.csv')
+
+    else:
+        html_tables=get_tournaments(h,uscf_id)
+        # st.dataframe(html_tables[['End_event_date','Event_name','reg Rtg Before/After']], width=1600, height=600)
+    
+        print(html_tables.columns)
+        
+        df_all_games=get_all_games(uscf_id)
+
+
+
     print(df_all_games.columns)
     html_tables['short_event2']=html_tables['Event_name'].apply(lambda  x: x.split(':')[0][:-5].replace(' ',''))
     # st.dataframe(html_tables, width=1600, height=400)
-    df_all_games['short_event']=df_all_games['Event'].apply(lambda  x: x.replace(' ',''))
-    # df_all_games['short_event']=df_all_games['Event'].apply(lambda  x: x if len(x) <10 else x[:10])
-    df_all_games=df_all_games.merge(html_tables[['short_event2','End_event_date']], how='left', left_on='short_event', right_on='short_event2')
-    df_all_games=df_all_games.drop_duplicates()
-    df_all_games=df_all_games[['End_event_date','Event',	'Section',	'round','color','Oponent USCF'	,'Oponent name','Rating','Result']]
-    df_all_games=df_all_games.sort_values(by=['End_event_date','round'], ascending= False)
-    st.write(':orange[summary of last 50 regular games]')
-    df_top=df_all_games.head(50)
-    df_top['opp_rating']=df_top['Rating'].apply(lambda x: x.split('=>')[1].split('(')[0]).astype(float)
-    df_top_w=df_top.loc[df_top['Result']=="W"]
-    df_top_d=df_top.loc[df_top['Result']=="D"]
-    df_top_l=df_top.loc[df_top['Result']=="L"]
-    df_w=pd.DataFrame(df_top_w['opp_rating'].describe()).rename(columns={'opp_rating':'Win'})
-    df_d=pd.DataFrame(df_top_d['opp_rating'].describe()).rename(columns={'opp_rating':'Draw'})
-    df_l=pd.DataFrame(df_top_l['opp_rating'].describe()).rename(columns={'opp_rating':'Lose'})
-    # df_100_des=df_top['Result'].value_counts().reset_index()
-    df_summary=pd.concat( [df_w,df_d,df_l], axis=1)
-    # print('---------',df_top_w)
-    # print(df_summary)
-    st.dataframe(df_summary, width=1200, height=400)
+    if len(df_all_games) >0:
+        df_all_games['short_event']=df_all_games['Event'].apply(lambda  x: x.replace(' ',''))
+
+        df_all_games=df_all_games.merge(html_tables[['short_event2','End_event_date']], how='left', left_on='short_event', right_on='short_event2')
+        df_all_games=df_all_games.drop_duplicates()
+        df_all_games=df_all_games[['End_event_date','Event',	'Section',	'round','color','Oponent USCF'	,'Oponent name','Rating','Result']]
+        df_all_games=df_all_games.sort_values(by=['End_event_date','round'], ascending= False)
+        st.write(':orange[summary of last 50 regular games]')
+        df_top=df_all_games.head(50)
+        df_top['opp_rating']=df_top['Rating'].apply(lambda x: x.split('=>')[1].split('(')[0]).astype(float)
+        df_top_w=df_top.loc[df_top['Result']=="W"]
+        df_top_d=df_top.loc[df_top['Result']=="D"]
+        df_top_l=df_top.loc[df_top['Result']=="L"]
+        df_w=pd.DataFrame(df_top_w['opp_rating'].describe()).rename(columns={'opp_rating':'Win'})
+        df_d=pd.DataFrame(df_top_d['opp_rating'].describe()).rename(columns={'opp_rating':'Draw'})
+        df_l=pd.DataFrame(df_top_l['opp_rating'].describe()).rename(columns={'opp_rating':'Lose'})
+        # df_100_des=df_top['Result'].value_counts().reset_index()
+        df_summary=pd.concat( [df_w,df_d,df_l], axis=1)
+        # print('---------',df_top_w)
+        # print(df_summary)
+        st.dataframe(df_summary, width=1200, height=400)
     
     if more_tour_info=='recent games':
         
