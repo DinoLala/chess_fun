@@ -148,7 +148,7 @@ def get_tournaments(h,uscf_id):
     
 
 def get_all_games(uscf_id):
-    my_url='https://www.uschess.org/datapage/gamestats.php?memid=30581110&ptype=G&rs=R&dkey=1300&drill=G'
+    # my_url='https://www.uschess.org/datapage/gamestats.php?memid=30581110&ptype=G&rs=R&dkey=1300&drill=G'
     rate_list=['UNR','100','200','300','400','500','600','700','800','900',
             '1000','1100','1200','1300','1400','1500'
             ,'1600','1700','1800','1900','2000','2100','2200','2300','2400','2500','2600','2700','2800']
@@ -157,6 +157,7 @@ def get_all_games(uscf_id):
     # for r in ['1700']:
         # print(r)
         my_url='https://www.uschess.org/datapage/gamestats.php?memid='+uscf_id+'&ptype=G&rs=R&dkey='+r+'&drill=G'
+        # print(my_url)
         try:
             re = requests.get(my_url)
             # print(re.text)
@@ -176,12 +177,16 @@ def get_all_games(uscf_id):
                 tables.pop(-1)
             df=pd.DataFrame(tables[-3][:])
             df=df.rename(columns=df.iloc[0])
+            
             df=df.dropna()
+            # print('============',df)
+
             # print(df)
             df.columns=['Event',	'Section',	'round','color','Oponent USCF'	,'Oponent name','Rating','Result']
             
             
             df_all_games=pd.concat([df_all_games,df], axis=0)
+            # print('============',df)
         except:
             # print('not found', r)
             pass
