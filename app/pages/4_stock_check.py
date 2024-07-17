@@ -56,7 +56,11 @@ def volume_by_ticker(ticker):
         )
     )
     # st.pyplot(fig) 
-    st.plotly_chart(fig)
+    col1,col2 = st.columns(2)
+    with col1:
+        st.write(data.tail())
+    with col2:
+        st.plotly_chart(fig)
     # fig.show()
 def plot_ticker(df_temp, metric_plot,ticker):
     two_subplot_fig = plt.figure(figsize=(6,6),facecolor='lightblue')
