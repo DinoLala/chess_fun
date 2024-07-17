@@ -8,9 +8,10 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-#Data Source
 import yfinance as yf
+from datetime import datetime, timedelta
+#Data Source
+# import yfinance as yf
 
 #Data viz
 import plotly.graph_objs as go
@@ -76,11 +77,31 @@ def plot_ticker(df_temp, metric_plot,ticker):
     plt.title(f' {ticker} trend -{metric_plot}')
     st.pyplot(two_subplot_fig)
 
+# Function to get the earnings calendar for the current week
+def get_earnings_calendar(ticker):
+    today = datetime.now()
+    start_date = today - timedelta(days=today.weekday())  # Monday of the current week
+    end_date = start_date + timedelta(days=30)  # Friday of the current week
 
+    # Fetch the earnings calendar
+    earnings_calendar =      yf.Ticker(ticker).get_earnings_dates()
+    print(earnings_calendar.columns)
+
+    # Filter earnings within the current week
+    earnings_this_week = earnings_calendar[
+        (earnings_calendar.index >= start_date.strftime('%Y-%m-%d')) & 
+        (earnings_calendar.index<= end_date.strftime('%Y-%m-%d'))
+    ].reset_index()
+    # st.write(earnings_this_week['Earnings Date'][0])
+    from datetime import timezone
+    date2=earnings_this_week['Earnings Date'][0].replace(tzinfo=timezone.utc).astimezone(tz=None)    
+    difference = (date2 - today).days
+    st.write(f':orange[Next earning date {date2.date()} in : {difference} days]')
+    return earnings_this_week.head(5)
 # --------------------------------------------------
 metric_list=['Volume','Close']
 col1,col2 = st.columns(2)
-common_list=['TLRY','NIO','TSLA','TGT','AMC','RBLX','PLTR','XLK','UDMY','BAC','DAL','AAL']
+common_list=['TLRY','NIO','TSLA','TGT','AMC','RBLX','PLTR','XLK','UDMY','BAC','DAL','AAL','SHOP']
 with col1:
     ticker=st.selectbox( 'TICKER',common_list)
     days_back=st.selectbox( 'Days back',[30,5,10,20,30,60,120,180])
@@ -106,6 +127,8 @@ for c in metric_list:
     # Calculate the lower Bollinger Band
     data[c+'Lower_Band'] = data[c+'Moving_Avg'] - (data[c+'Std_Dev'] * 2)
 #Print data
+earnings_this_week = get_earnings_calendar(ticker)
+# st.write(earnings_this_week)
 
 print(data['Date'].max())
 volume_by_ticker(ticker)
