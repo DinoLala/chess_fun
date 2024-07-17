@@ -24,7 +24,7 @@ st.header('')
             
 import os
 def volume_by_ticker(ticker):
-    data = yf.download(tickers=ticker, period='1d', interval='5m')
+    data = yf.download(tickers=ticker, period='1d', interval='1m')
 
     #declare figure
     fig = go.Figure()
@@ -62,28 +62,45 @@ def plot_ticker(df_temp, metric_plot,ticker):
     two_subplot_fig = plt.figure(figsize=(6,6),facecolor='lightblue')
     plt.subplot(211)
     plt.plot(df_temp['Date'] ,df_temp[metric_plot] , color='tab:orange', marker='.')
-    # plt.subplot(212)
-    # plt.plot(df_temp['End_event_date'] ,df_temp['quick_rating'] , color='tab:blue', marker='.')
+    
+    plt.plot(df_temp['Date'] ,df_temp[metric_plot+'Moving_Avg'] , color='tab:purple',linestyle='dashed', marker='.')
+    plt.plot(df_temp['Date'] ,df_temp[metric_plot+'Upper_Band'] , color='tab:red',linestyle='dashed')
+    plt.plot(df_temp['Date'] ,df_temp[metric_plot+'Lower_Band'] , color='tab:green',linestyle='dashed')
+    
     plt.xticks(rotation=30)
-    # x_stick=[df_temp['End_event_date'][i] for i  in range(len(df_temp['End_event_date'])) if i%5 == 0 ]
-    # plt.xticks(x_stick)
     plt.grid()
     plt.title(f' {ticker} trend -{metric_plot}')
     st.pyplot(two_subplot_fig)
 
 
 # --------------------------------------------------
+metric_list=['Volume','Close']
 col1,col2 = st.columns(2)
 common_list=['TLRY','NIO','TSLA','TGT','AMC','RBLX','PLTR','XLK','UDMY','BAC','DAL','AAL']
 with col1:
     ticker=st.selectbox( 'TICKER',common_list)
     days_back=st.selectbox( 'Days back',[30,5,10,20,30,60,120,180])
+    window_size =st.selectbox( 'moving avg',[5,10,20,60])
+    # window_size = 3
     # st.text_input('Ticker' ,value='NIO')
 with col2:
-    metric_plot=st.selectbox( 'metric_plot',['Volume','Close'])
+    metric_plot=st.selectbox( 'metric_plot',metric_list)
     metric_plot2=st.selectbox( 'metric_plot',['Close','Volume'])
 #Interval required 5 minutes
 data = yf.download(tickers=ticker, period=str(round(days_back,0))+'d', interval='1d').reset_index()
+
+
+# Calculate the moving average
+for c in metric_list:
+    data[c+'Moving_Avg'] = data[c].rolling(window=window_size).mean()
+    # Calculate the rolling standard deviation
+    data[c+'Std_Dev'] = data[c].rolling(window=window_size).std()
+
+    # Calculate the upper Bollinger Band
+    data[c+'Upper_Band'] = data[c+'Moving_Avg'] + (data[c+'Std_Dev'] * 2)
+
+    # Calculate the lower Bollinger Band
+    data[c+'Lower_Band'] = data[c+'Moving_Avg'] - (data[c+'Std_Dev'] * 2)
 #Print data
 
 print(data['Date'].max())
