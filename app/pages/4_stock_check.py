@@ -63,14 +63,15 @@ def volume_by_ticker(ticker):
     with col2:
         st.plotly_chart(fig)
     # fig.show()
-def plot_ticker(df_temp, metric_plot,ticker):
+def plot_ticker(df_temp, metric_plot,ticke,show_bollingerr):
     two_subplot_fig = plt.figure(figsize=(6,6),facecolor='lightblue')
     plt.subplot(211)
     plt.plot(df_temp['Date'] ,df_temp[metric_plot] , color='tab:orange', marker='.')
     
     plt.plot(df_temp['Date'] ,df_temp[metric_plot+'Moving_Avg'] , color='tab:purple',linestyle='dashed', marker='.')
-    plt.plot(df_temp['Date'] ,df_temp[metric_plot+'Upper_Band'] , color='tab:red',linestyle='dashed')
-    plt.plot(df_temp['Date'] ,df_temp[metric_plot+'Lower_Band'] , color='tab:green',linestyle='dashed')
+    if show_bollinger =='yes':
+        plt.plot(df_temp['Date'] ,df_temp[metric_plot+'Upper_Band'] , color='tab:red',linestyle='dashed')
+        plt.plot(df_temp['Date'] ,df_temp[metric_plot+'Lower_Band'] , color='tab:green',linestyle='dashed')
     
     plt.xticks(rotation=30)
     plt.grid()
@@ -111,6 +112,7 @@ with col1:
 with col2:
     metric_plot=st.selectbox( 'metric_plot',metric_list)
     metric_plot2=st.selectbox( 'metric_plot',['Close','Volume'])
+    show_bollinger=st.selectbox( 'show bollinger band',['no','yes'])
 #Interval required 5 minutes
 data = yf.download(tickers=ticker, period=str(round(days_back,0))+'d', interval='1d').reset_index()
 
@@ -127,7 +129,10 @@ for c in metric_list:
     # Calculate the lower Bollinger Band
     data[c+'Lower_Band'] = data[c+'Moving_Avg'] - (data[c+'Std_Dev'] * 2)
 #Print data
-earnings_this_week = get_earnings_calendar(ticker)
+try:
+    earnings_this_week = get_earnings_calendar(ticker)
+except:
+    pass
 # st.write(earnings_this_week)
 
 print(data['Date'].max())
@@ -135,8 +140,8 @@ volume_by_ticker(ticker)
 col1,col2 = st.columns(2)
 
 with col1:
-    plot_ticker(data,metric_plot,ticker)
+    plot_ticker(data,metric_plot,ticker,show_bollinger)
 with col2:
-    plot_ticker(data,metric_plot2,ticker)
+    plot_ticker(data,metric_plot2,ticker,show_bollinger)
 data=data.sort_values(by='Date', ascending=False)
 st.write(data)

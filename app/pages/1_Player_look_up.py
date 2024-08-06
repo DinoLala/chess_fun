@@ -59,6 +59,7 @@ with col10:
             uscf_id=df_common_players[common_player]
         more_tour_info=st.selectbox('More info' ,['none','recent tournaments', 'recent games'])
         refresh_info=st.selectbox('Update infor(* not recommend)' ,['no','yes'])
+        game_num=st.selectbox(' Games stats' ,['10','20','30','50','100'])
     
 with col20:
 
@@ -161,7 +162,8 @@ if submited and uscf_id !="":
 
     st.divider() 
 
-    st.header(":orange[Lastest Tournaments!]")
+    st.header(":orange[Lastest Games Statistis!]")
+    
 
     print(df_all_games.columns)
     html_tables['short_event2']=html_tables['Event_name'].apply(lambda  x: x.split(':')[0][:-5].replace(' ',''))
@@ -173,8 +175,9 @@ if submited and uscf_id !="":
         df_all_games=df_all_games.drop_duplicates()
         df_all_games=df_all_games[['End_event_date','Event',	'Section',	'round','color','Oponent USCF'	,'Oponent name','Rating','Result']]
         df_all_games=df_all_games.sort_values(by=['End_event_date','round'], ascending= False)
-        st.write(':orange[summary of last 50 regular games]')
-        df_top=df_all_games.head(50)
+        game_num=int(game_num)
+        st.write(f':orange[summary of last {game_num} regular games]')
+        df_top=df_all_games.head(game_num)
         df_top['opp_rating']=df_top['Rating'].apply(lambda x: x.split('=>')[1].split('(')[0]).astype(float)
         df_top_w=df_top.loc[df_top['Result']=="W"]
         df_top_d=df_top.loc[df_top['Result']=="D"]
