@@ -67,6 +67,13 @@ with col20:
     st.title("")
 
 
+def get_score(x):
+    if x=='W':
+        return 1
+    elif x=='D':
+        return .5
+    else:
+        return 0
 
 
 submited=st.button('Find player')
@@ -187,15 +194,25 @@ if submited and uscf_id !="":
         df_l=pd.DataFrame(df_top_l['opp_rating'].describe()).rename(columns={'opp_rating':'Lose'})
         df_summary=pd.concat( [df_w,df_d,df_l], axis=1)
         st.dataframe(df_summary, width=1200, height=400)
+        
+    
+    df_all_games['score']=df_all_games['Result'].apply(lambda x: get_score(x))
+    df_all_games_agg=df_all_games.groupby(['End_event_date','Event','Section']).agg(total_round_played=('score','count')
+                                                            ,total_score=('score','sum')).reset_index()
+    df_all_games_agg['win_rate']=df_all_games_agg['total_score']/df_all_games_agg['total_round_played']
+    df_all_games_agg=df_all_games_agg.sort_values(by='End_event_date', ascending=False)
+    st.dataframe(df_all_games_agg, width=1600, height=400)
+
     
     if more_tour_info=='recent games':
         
-
         st.dataframe(df_all_games, width=1600, height=400)
+
     elif more_tour_info =='recent tournaments':
         st.write(":orange[Lastest Tournaments!]")
         col_keep=[c for c in list(html_tables) if 'short' not in c and "Unname" not in c]
         html_tables_out=html_tables[col_keep]
+        
         st.dataframe(html_tables_out, width=1600, height=400)
 
 
@@ -245,6 +262,7 @@ if submited and uscf_id !="":
             plt.grid()
             plt.title('Rating trend')
             st.pyplot(two_subplot_fig)
+            
 
         except:
             pass
