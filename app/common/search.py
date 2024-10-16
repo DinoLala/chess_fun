@@ -157,7 +157,7 @@ def get_all_games(uscf_id):
     # for r in ['1700']:
         # print(r)
         my_url='https://www.uschess.org/datapage/gamestats.php?memid='+uscf_id+'&ptype=G&rs=R&dkey='+r+'&drill=G'
-        # print(my_url)
+        print(my_url)
         try:
             re = requests.get(my_url)
             # print(re.text)

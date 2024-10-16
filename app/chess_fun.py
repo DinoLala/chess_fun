@@ -23,6 +23,8 @@ st.write(":orange[For more information, please visit US Chess official [website 
 maca_tournament = "http://www.masschess.org/Events/chess-event-calendar.aspx"
 continental_tour="http://www.chesstour.com/refs.html"
 Duy_chess_note='https://docs.google.com/spreadsheets/d/10Lfybi_B-zMD2yyJdxc6Kos1qRIaEHC5dDKvz3OZJwU/edit?gid=0#gid=0'
+capital_area_chess="https://www.capitalareachess.com/"
 st.write(":orange[For MACA [Tournaments ](%s)]" % maca_tournament)
 st.write(":orange[For Continental Chess Association [Tournaments ](%s)]" % continental_tour)
+st.write(":orange[For Capital Area Ches [Tournaments ](%s)]" % capital_area_chess) 
 st.write(":orange[Duy Chess note [note ](%s)]" % Duy_chess_note)

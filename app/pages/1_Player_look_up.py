@@ -195,7 +195,7 @@ if submited and uscf_id !="":
         df_summary=pd.concat( [df_w,df_d,df_l], axis=1)
         st.dataframe(df_summary, width=1200, height=400)
         
-    
+    st.write(df_all_games)
     df_all_games['score']=df_all_games['Result'].apply(lambda x: get_score(x))
     df_all_games_agg=df_all_games.groupby(['End_event_date','Event','Section']).agg(total_round_played=('score','count')
                                                             ,total_score=('score','sum')).reset_index()
