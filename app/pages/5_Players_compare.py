@@ -98,7 +98,10 @@ def get_data_uscfID(uscf_id):
     df_temp['rating']=df_temp['rating'].astype('int')
     df_temp.index=df_temp['End_event_date']
     df_temp['y_m']=df_temp['End_event_date'].apply(lambda x: x[:7])
-    df_temp2=df_temp.groupby('y_m').agg(avg_rating=('rating','mean')).reset_index()
+    # df_temp2=df_temp.groupby('y_m').agg(avg_rating=('rating','mean')).reset_index()
+    df_temp2=df_temp.groupby('y_m').agg(avg_rating=('rating','last')).reset_index()
+
+    
     df_temp2['avg_rating']=round(df_temp2['avg_rating'])
     df_temp2=df_temp2.sort_values(by='y_m', ascending=True)
 
