@@ -144,6 +144,23 @@ def get_tournaments(h,uscf_id):
         html_tables.columns=['End_event_date','Event_name','reg Rtg Before/After','Quick Rtg Before/After','Bliz Rtg Before/After']
         
     html_tables['End_event_date'] =html_tables['End_event_date'].apply(lambda x: x[:10])
+    # try:
+    #     my_url='https://www.uschess.org/msa/MbrDtlTnmtHst.php?'+uscf_id+'.2'
+    #     re = requests.get(my_url)
+    #     # print(re.text)
+    #     text_file=re.text
+    #     html_tables2=h.process_tb(text_file)
+    #     if len(html_tables2) <=50:
+    #         html_tables2.columns=['End_event_date','Event_name','reg Rtg Before/After','Quick Rtg Before/After','Bliz Rtg Before/After']
+    #     else: 
+    #         html_tables2=html_tables2.iloc[1:,:]
+
+    #         html_tables2.columns=['End_event_date','Event_name','reg Rtg Before/After','Quick Rtg Before/After','Bliz Rtg Before/After']
+    #         html_tables2['End_event_date'] =html_tables2['End_event_date'].apply(lambda x: x[:10])
+
+    #     html_tables=pd.concat([html_tables,html_tables2], axis=0)
+    # except:
+    #     pass
     return html_tables
     
 
@@ -205,21 +222,24 @@ def get_norm_summary(h,uscf_id):
 
 def get_norm(opponent_list,n_win):
     norm_dict={}
-    for c in [1200, 1400,1600,1800]:
-        C_t=0
-        for p in opponent_list:
-            del_i=c-p
-            if del_i <= -400:
-                c_i=0
-            elif del_i <=0 and del_i >-400:
-                c_i=.5+del_i/800
-            elif del_i >0 and del_i <=200:
-                c_i=.5+del_i/400
+    if len(opponent_list) <4:
+        return norm_dict
+    else:
+        for c in [1200, 1400,1600,1800]:
+            C_t=0
+            for p in opponent_list:
+                del_i=c-p
+                if del_i <= -400:
+                    c_i=0
+                elif del_i <=0 and del_i >-400:
+                    c_i=.5+del_i/800
+                elif del_i >0 and del_i <=200:
+                    c_i=.5+del_i/400
+                else:
+                    c_i=1
+                C_t=C_t+c_i
+            if n_win- C_t>1:
+                norm_dict[c]='yes'
             else:
-                c_i=1
-            C_t=C_t+c_i
-        if n_win- C_t>1:
-            norm_dict[c]='yes'
-        else:
-            norm_dict[c]='no'
-    return norm_dict
+                norm_dict[c]='no'
+        return norm_dict

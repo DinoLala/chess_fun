@@ -102,7 +102,7 @@ def get_earnings_calendar(ticker):
 # --------------------------------------------------
 metric_list=['Volume','Close']
 col1,col2 = st.columns(2)
-common_list=['TLRY','NIO','TSLA','TGT','AMC','RBLX','PLTR','XLK','UDMY','BAC','DAL','AAL','SHOP']
+common_list=['TLRY','NIO','TSLA','TGT','AMC','RBLX','PLTR','XLK','UDMY','BAC','DAL','AAL','SHOP','UBER','NVDA']
 with col1:
     ticker=st.selectbox( 'TICKER',common_list)
     days_back=st.selectbox( 'Days back',[30,5,10,20,30,60,120,180])
@@ -113,35 +113,38 @@ with col2:
     metric_plot=st.selectbox( 'metric_plot',metric_list)
     metric_plot2=st.selectbox( 'metric_plot',['Close','Volume'])
     show_bollinger=st.selectbox( 'show bollinger band',['no','yes'])
+
+submited=st.button('Refresh')
 #Interval required 5 minutes
-data = yf.download(tickers=ticker, period=str(round(days_back,0))+'d', interval='1d').reset_index()
+if submited:
+    data = yf.download(tickers=ticker, period=str(round(days_back,0))+'d', interval='1d').reset_index()
 
 
-# Calculate the moving average
-for c in metric_list:
-    data[c+'Moving_Avg'] = data[c].rolling(window=window_size).mean()
-    # Calculate the rolling standard deviation
-    data[c+'Std_Dev'] = data[c].rolling(window=window_size).std()
+    # Calculate the moving average
+    for c in metric_list:
+        data[c+'Moving_Avg'] = data[c].rolling(window=window_size).mean()
+        # Calculate the rolling standard deviation
+        data[c+'Std_Dev'] = data[c].rolling(window=window_size).std()
 
-    # Calculate the upper Bollinger Band
-    data[c+'Upper_Band'] = data[c+'Moving_Avg'] + (data[c+'Std_Dev'] * 2)
+        # Calculate the upper Bollinger Band
+        data[c+'Upper_Band'] = data[c+'Moving_Avg'] + (data[c+'Std_Dev'] * 2)
 
-    # Calculate the lower Bollinger Band
-    data[c+'Lower_Band'] = data[c+'Moving_Avg'] - (data[c+'Std_Dev'] * 2)
-#Print data
-try:
-    earnings_this_week = get_earnings_calendar(ticker)
-except:
-    pass
-# st.write(earnings_this_week)
+        # Calculate the lower Bollinger Band
+        data[c+'Lower_Band'] = data[c+'Moving_Avg'] - (data[c+'Std_Dev'] * 2)
+    #Print data
+    try:
+        earnings_this_week = get_earnings_calendar(ticker)
+    except:
+        pass
+    # st.write(earnings_this_week)
 
-print(data['Date'].max())
-volume_by_ticker(ticker)
-col1,col2 = st.columns(2)
+    print(data['Date'].max())
+    volume_by_ticker(ticker)
+    col1,col2 = st.columns(2)
 
-with col1:
-    plot_ticker(data,metric_plot,ticker,show_bollinger)
-with col2:
-    plot_ticker(data,metric_plot2,ticker,show_bollinger)
-data=data.sort_values(by='Date', ascending=False)
-st.write(data)
+    with col1:
+        plot_ticker(data,metric_plot,ticker,show_bollinger)
+    with col2:
+        plot_ticker(data,metric_plot2,ticker,show_bollinger)
+    data=data.sort_values(by='Date', ascending=False)
+    st.write(data)

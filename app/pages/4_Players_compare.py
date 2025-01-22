@@ -99,10 +99,10 @@ def get_data_uscfID(uscf_id):
     df_temp.index=df_temp['End_event_date']
     df_temp['y_m']=df_temp['End_event_date'].apply(lambda x: x[:7])
     # df_temp2=df_temp.groupby('y_m').agg(avg_rating=('rating','mean')).reset_index()
-    df_temp2=df_temp.groupby('y_m').agg(avg_rating=('rating','last')).reset_index()
+    df_temp2=df_temp.groupby('y_m').agg(rating=('rating','last')).reset_index()
 
     
-    df_temp2['avg_rating']=round(df_temp2['avg_rating'])
+    df_temp2['rating']=round(df_temp2['rating'])
     df_temp2=df_temp2.sort_values(by='y_m', ascending=True)
 
     return df_temp2
@@ -134,12 +134,12 @@ if submited :
             if cnt==1:
                 df_temp_plot=df_temp
                 x_stick=[df_temp_plot['y_m'][i] for i  in range(len(df_temp_plot['y_m'])) if i%3 == 0 ]
-                plt.plot(df_temp_plot['y_m'] ,df_temp_plot['avg_rating'] ,  marker='.', label=p)
+                plt.plot(df_temp_plot['y_m'] ,df_temp_plot['rating'] ,  marker='.', label=p)
             else:
             
                 df_temp_plot=df_temp.merge(df_temp_plot, how='inner', on='y_m', suffixes=('_'+p,''))
                 
-                plt.plot(df_temp_plot['y_m'] ,df_temp_plot['avg_rating'+'_'+p] ,  marker='.', label=p)
+                plt.plot(df_temp_plot['y_m'] ,df_temp_plot['rating'+'_'+p] ,  marker='.', label=p)
                 
                 
 
@@ -154,9 +154,16 @@ if submited :
         plt.legend()
         plt.title('Rating trend')
         st.pyplot(two_subplot_fig)
-        df_temp_plot=df_temp_plot.rename(columns={'avg_rating':'avg_rating_'+uscf_id_list[0][1]})
-        
-        st.write(df_temp_plot.sort_values(by='y_m', ascending=False))
+        df_temp_plot=df_temp_plot.rename(columns={'rating':'rating_'+uscf_id_list[0][1]})
+        if len(df_temp_plot.columns) >3:
+            st.write(df_temp_plot.sort_values(by='y_m', ascending=False))
+        else:
+            # st.write(df_temp_plot['y_m'])
+            col1=df_temp_plot.columns[1]
+            col2=df_temp_plot.columns[2]
+            df_temp_plot['rating_diff']=df_temp_plot[col1]-df_temp_plot[col2]
+            st.write(df_temp_plot.sort_values(by='y_m', ascending=False))
+
         
 
     except:

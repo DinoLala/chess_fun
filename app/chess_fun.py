@@ -17,6 +17,7 @@ with col2:
     st.image('./app/data/nhan.jpeg')
 
 url = "https://new.uschess.org/"
+plan_ahead="https://new.uschess.org/plan-ahead-calendar"
 # st.write("check out this [link](%s)" % url)
 st.write(":orange[For more information, please visit US Chess official [website ](%s)]" % url)
 
@@ -26,10 +27,15 @@ Duy_chess_note='https://docs.google.com/spreadsheets/d/10Lfybi_B-zMD2yyJdxc6Kos1
 
 capital_area_chess="https://www.capitalareachess.com/"
 uscf_top100="https://www.uschess.org/component/option,com_top_players/Itemid,371/"
+
+st.write(":orange[For plan ahead USCF [Tournaments ](%s)]" % plan_ahead)
+
 st.write(":orange[For MACA [Tournaments ](%s)]" % maca_tournament)
+
 st.write(":orange[For Continental Chess Association [Tournaments ](%s)]" % continental_tour)
+
 st.write(":orange[For Capital Area Ches [Tournaments ](%s)]" % capital_area_chess) 
 
-st.write(":orange[USCF top 100 [uscf top 100 ](%s)]" % uscf_top100) 
+st.write(":green[USCF top 100 [uscf top 100 ](%s)]" % uscf_top100) 
 
-st.write(":orange[Duy Chess note [note ](%s)]" % Duy_chess_note)
+st.write(":green[Duy Chess note [note ](%s)]" % Duy_chess_note)

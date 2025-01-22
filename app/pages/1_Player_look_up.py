@@ -87,14 +87,19 @@ if submited and uscf_id !="":
         for p in favor_list:
         # for p in ["SARAH NGUYEN"]:
             # if p !='none':
-            # if p =="SARAH NGUYEN":
+            
             uscf_id=df_common_players[p]
+            
             df_all_games=get_all_games(uscf_id)
             # print('================checking')
-            # print(df_all_games)
+            print(df_all_games)
+            
+
             html_tables=get_tournaments(h,uscf_id)
             df_all_games.to_csv('app/data/players/allgames'+uscf_id+'.csv')
             html_tables.to_csv('app/data/players/tournament'+uscf_id+'.csv')
+            if p =="ARTHUR ZHOU":
+                st.write(df_all_games)
 
             dict_out=get_player(h,uscf_id)
             norm_df=get_norm_summary(h,uscf_id)
@@ -140,7 +145,7 @@ if submited and uscf_id !="":
 
 
     
-    
+    st.write(uscf_id)
     if common_player !='none':
         df_all_games=pd.read_csv('app/data/players/allgames'+uscf_id+'.csv')
         html_tables=pd.read_csv('app/data/players/tournament'+uscf_id+'.csv')
@@ -172,7 +177,7 @@ if submited and uscf_id !="":
     st.header(":orange[Lastest Games Statistis!]")
     
 
-    print(df_all_games.columns)
+    # st.write(df_all_games)
     html_tables['short_event2']=html_tables['Event_name'].apply(lambda  x: x.split(':')[0][:-5].replace(' ',''))
     # st.dataframe(html_tables, width=1600, height=400)
     if len(df_all_games) >0:
