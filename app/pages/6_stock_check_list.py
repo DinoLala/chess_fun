@@ -25,7 +25,7 @@ st.header('')
             
 import os
 
-fix_stock = st.multiselect("Please select numbers", ['TLRY','NIO','TSLA','TGT','AMC','RBLX','PLTR','XLK','UDMY','BAC','DAL','AAL','SHOP','UBER','NVDA'])
+fix_stock = st.multiselect("Please select numbers", ['AMD','TLRY','NIO','TSLA','TGT','AMC','RBLX','PLTR','XLK','UDMY','BAC','DAL','AAL','SHOP','UBER','NVDA'])
 # st.write(fixed_numbers)
 def volume_by_ticker(ticker_list):
     col1,col2 = st.columns(2)
@@ -48,7 +48,7 @@ def volume_by_ticker(ticker_list):
         #    volume=data['Volume'],
         # Add titles
         fig.update_layout(
-            title=f'{ticker} live share price evolution',
+            title=f'{ticker} ',
             yaxis_title='Stock Price (USD per Shares)')
 
         # X-Axes
@@ -77,6 +77,8 @@ def volume_by_ticker(ticker_list):
 
 submited=st.button('Refresh')
 #Interval required 5 minutes
+
+
 if submited:
     # ticker_list=['TLRY','NIO','TSLA','TGT','AMC','RBLX','PLTR','XLK','UDMY','BAC','DAL','AAL','SHOP','UBER','NVDA']
     ticker_list=fix_stock

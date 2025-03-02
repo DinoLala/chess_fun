@@ -27,6 +27,7 @@ Duy_chess_note='https://docs.google.com/spreadsheets/d/10Lfybi_B-zMD2yyJdxc6Kos1
 
 capital_area_chess="https://www.capitalareachess.com/"
 uscf_top100="https://www.uschess.org/component/option,com_top_players/Itemid,371/"
+fide_profile='https://ratings.fide.com/profile/39956741'
 
 st.write(":orange[For plan ahead USCF [Tournaments ](%s)]" % plan_ahead)
 
@@ -37,5 +38,6 @@ st.write(":orange[For Continental Chess Association [Tournaments ](%s)]" % conti
 st.write(":orange[For Capital Area Ches [Tournaments ](%s)]" % capital_area_chess) 
 
 st.write(":green[USCF top 100 [uscf top 100 ](%s)]" % uscf_top100) 
+st.write(":green[Fide Profile [Fide Profile ](%s)]" % fide_profile) 
 
 st.write(":green[Duy Chess note [note ](%s)]" % Duy_chess_note)
