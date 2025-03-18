@@ -33,3 +33,128 @@ def get_entry_list(tourname_name):
         # Display the styled table with hyperlinks
         st.markdown(table_style, unsafe_allow_html=True)
         st.markdown(df.to_html(escape=False), unsafe_allow_html=True)
+
+def get_pairing(tournament, section):
+    # st.write("This content is hidden by default. Click the header to reveal it.")
+    # st.image("https://via.placeholder.com/150", caption="Example Image")
+
+    uploaded_file = "/Users/trangnguyen/Downloads/pairing_example_"+section+".csv"
+    df = pd.read_csv(uploaded_file)
+    df=df[['Bd','Res','White','Res.1','Black']]
+    df = df.fillna('9999999')
+
+    df['Bd']=df['Bd'].astype('int')
+    df=df.replace('9999999','').replace(9999999,'')
+    # df.index=
+    # st.write(df)
+
+    # Store table in session state to persist updates
+    if 'open' in section:
+        pairing_table="pairing_table_open"
+        if pairing_table not in st.session_state:
+            
+            st.session_state[pairing_table] = df.copy()
+    else:
+        pairing_table="pairing_table_u1600"
+        if "pairing_table_u1600" not in st.session_state:
+            
+            st.session_state[pairing_table] = df.copy()
+            # st.session_state.pairing_table_u1600 = df.copy()
+
+    if "selected_row" not in st.session_state:
+        st.session_state.selected_row = None  # To track which row's button was clicked
+
+    # Display the pairing table
+    st.subheader("Pairing Table")
+    table_html = """<table><tr><th>Bd</th>
+                    <th>Res</th>
+                    <th>White</th>
+                    <th>Res.1</th>
+                    <th>Black</th>
+                    <th>Enter Result</th>
+                    </tr>"""
+
+    # Table layout
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 2, 2, 1,2,1])
+
+    with col1:
+        st.write("**Bd**")
+    with col2:
+        st.write("**res**")
+    with col3:
+        st.write("**Player1**")
+    with col4:
+        st.write("**res.1**")
+    with col5:
+        st.write("**player2**")
+    with col6:
+        st.write("**Enter Result**")
+    
+
+    # Iterate through the rows and add input fields & buttons
+    for index, row in st.session_state[pairing_table].iterrows():
+        # st.write(index,row)
+        
+        col1, col2, col3, col4,col5,col6= st.columns([1, 1, 2, 1,2, 1])
+        
+        with col1:
+            st.write(row["Bd"])
+        with col2:
+            st.write(row["Res"])
+        with col3:
+            st.write(row["White"])
+        with col4:
+            st.write(row["Res.1"])
+        with col5:
+            st.write(row["Black"])
+        # with col3:
+        #     st.write(row["Match Result"] if row["Match Result"] else "No Result")
+        
+        with col6:
+            if st.button(f"Enter Result", key=section+f"btn_{index}"):
+                st.session_state.selected_row = index  # Store selected row index
+
+    # Open modal when a row is selected
+    if st.session_state.selected_row is not None:
+        st.write(st.session_state.selected_row)
+        index_1=st.session_state.selected_row
+        # st.write(df)
+        # st.write(f"Enter Result for {st.session_state[pairing_table].at[st.session_state.selected_row, 'White']} vs {st.session_state[pairing_table].at[st.session_state.selected_row, 'Black']}")
+        # st.write(pairing_table)
+
+        # with st.popover(f"Enter Result for {st.session_state[pairing_table].at[st.session_state.selected_row, 'White']} vs {st.session_state[pairing_table].at[st.session_state.selected_row, 'Black']}"):
+        with st.popover(f"Enter Result"):
+            # white=st.session_state[pairing_table].at[st.session_state.selected_row, 'White']
+            # black=st.session_state[pairing_table].at[st.session_state.selected_row, 'White']
+            # st.write(pairing_table,white, black)
+            new_result = st.text_input("Enter Match Result:", key=section+"result_input")
+            st.write(new_result)
+
+            if st.button(section+"Save Result"):
+                # Update the result in session state
+                if new_result!=.5:
+                    st.session_state[pairing_table].at[st.session_state.selected_row, "Res"] = str(new_result)
+                    st.session_state[pairing_table].at[st.session_state.selected_row, "Res.1"] = str(1-float(new_result))
+                else:
+                    st.session_state[pairing_table].at[st.session_state.selected_row, "Res"] = '.5'
+                    st.session_state[pairing_table].at[st.session_state.selected_row, "Res.1"] = ".5"
+
+                if st.session_state[pairing_table].at[st.session_state.selected_row, "Black"]=='BYE':
+                    st.session_state[pairing_table].at[st.session_state.selected_row, "Res.1"] = ''
+
+                
+                tb=st.session_state[pairing_table].at[st.session_state.selected_row, "Bd"] 
+                
+                df.at[ index_1, 'Res'] = str(new_result)
+                df.at[ index_1, 'Res.1'] = str(1-float(new_result))
+                df.loc[df['Black'] == 'BYE', 'Res.1'] = '9999999'
+                # df = df.fillna('9999999')
+
+                # df['Bd']=df['Bd'].astype('int')
+                df=df.replace('9999999','').replace(9999999,'')
+                # st.write(df.loc[df['Bd'] == tb])
+                df.to_csv(uploaded_file)
+                st.write(df)
+
+                st.session_state.selected_row = None  # Close modal
+                st.experimental_rerun()  # Rerun app to update table

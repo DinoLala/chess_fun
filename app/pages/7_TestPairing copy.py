@@ -1,7 +1,9 @@
 import streamlit as st
 
-st.header("Expandable Section")
+st.header("Using st.modal")
 
-with st.expander("Click to expand"):
-    st.write("This content is hidden by default. Click the header to reveal it.")
-    st.image("https://via.placeholder.com/150", caption="Example Image")
+# Create a button to trigger the modal
+if st.button("Open Modal"):
+    with st.modal("Modal Title"):
+        st.write("This is a modal pop-up window.")
+        st.button("Close")  # You can add an interactive close button

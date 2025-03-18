@@ -1,6 +1,6 @@
-site_name: chess_fun
+site_name: wcc_chess_events
 
-repo_name: chess_fun
+repo_name: wcc_chess_events
 
 theme:
   name: material
