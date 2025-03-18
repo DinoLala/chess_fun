@@ -42,11 +42,7 @@ def get_entry_list(tourname_name):
 
         st.markdown(styled_table, unsafe_allow_html=True)
 
-def get_pairing(df,tournament, section):
-    # st.write("This content is hidden by default. Click the header to reveal it.")
-    # st.image("https://via.placeholder.com/150", caption="Example Image")
-
-    # uploaded_file = "/Users/trangnguyen/Downloads/pairing_example_"+section+".csv"
+def get_pairing(df,df_all,uploaded_file, section):
     TABLE_STYLE = """
             <style>
                 table {
@@ -69,15 +65,6 @@ def get_pairing(df,tournament, section):
         """
 
     st.markdown(TABLE_STYLE, unsafe_allow_html=True)
-    # uploaded_file ="/Users/trangnguyen/Documents/GitHub/wcc-chess-events/app/data/tournaments/current_tournament/pairing_"+section+".csv"
-    # df = pd.read_csv(uploaded_file)
-    # df=df[['Bd','Res','White','Res.1','Black']]
-    # df = df.fillna('9999999')
-
-    # df['Bd']=df['Bd'].astype('int')
-    # df=df.replace('9999999','').replace(9999999,'')
-    # # df.index=
-    # # st.write(df)
 
     # Store table in session state to persist updates
     if 'open' in section:
@@ -138,35 +125,16 @@ def get_pairing(df,tournament, section):
             st.write(row["Res.1"])
         with col5:
             st.write(row["Black"])
-        # with col3:
-        #     st.write(row["Match Result"] if row["Match Result"] else "No Result")
-        
         with col6:
             if st.button(f"Enter Result", key=section+f"btn_{index}"):
                 st.session_state.selected_row = index  # Store selected row index
 
     # Open modal when a row is selected
-    count=0
     if st.session_state.selected_row is not None:
-        st.write(st.session_state.selected_row)
         index_1=st.session_state.selected_row
-        # white=df.at[ index_1,  'White']
-        # black=df.at[ index_1,  'Black']
-        # st.write(f'Enter result for : {white} vs {black}')
-        # st.write(f"Enter Result for {st.session_state[pairing_table].at[st.session_state.selected_row, 'White']} vs {st.session_state[pairing_table].at[st.session_state.selected_row, 'Black']}")
-        # st.write(pairing_table)
-
-        # with st.popover(f"Enter Result for {st.session_state[pairing_table].at[st.session_state.selected_row, 'White']} vs {st.session_state[pairing_table].at[st.session_state.selected_row, 'Black']}"):
-        with st.popover(f"Enter Result"):
-            # white=st.session_state[pairing_table].at[st.session_state.selected_row, 'White']
-            # black=st.session_state[pairing_table].at[st.session_state.selected_row, 'White']
-            # st.write(pairing_table,white, black)
+        with st.popover(f"Enter Result for {st.session_state[pairing_table].at[st.session_state.selected_row, 'White']} vs {st.session_state[pairing_table].at[st.session_state.selected_row, 'Black']}"):
+        # with st.popover(f"Enter Result"):
             new_result = st.text_input("Enter Match Result:", key=section+"result_input")
-            st.write(new_result)
-            white=df.at[ index_1,  'White']
-            black=df.at[ index_1,  'Black']
-            st.write(f'{white} vs {black}:', new_result)
-
             if st.button(section+"Save Result"):
                 # Update the result in session state
                 if new_result!=.5:
@@ -182,52 +150,27 @@ def get_pairing(df,tournament, section):
                 
                 tb=st.session_state[pairing_table].at[st.session_state.selected_row, "Bd"] 
                 
-                df.at[ index_1, 'Res'] = str(new_result)
-                df.at[ index_1, 'Res.1'] = str(1-float(new_result))
-                df.loc[df['Black'] == 'BYE', 'Res.1'] = '9999999'
-                white=df.at[ index_1,  'White']
-                black=df.at[ index_1,  'Black']
-                st.write(f'{white} vs {black}:', new_result)
-                # df = df.fillna('9999999')
-
-                # df['Bd']=df['Bd'].astype('int')
-                df=df.replace('9999999','').replace(9999999,'')
+                df_all.at[ index_1, 'Res'] = str(new_result)
+                df_all.at[ index_1, 'Res.1'] = str(1-float(new_result))
+                df_all.loc[df_all['Black'] == 'BYE', 'Res.1'] = '9999999'
+                df_all=df_all.replace('9999999','').replace(9999999,'')
                 # st.write(df.loc[df['Bd'] == tb])
-                df.to_csv(uploaded_file)
-                st.write(df)
-
-
-                # st.session_state.selected_row = None  # Close modal
+                df_all.to_csv(uploaded_file)
+                st.session_state.selected_row = None  # Close modal
                 st.experimental_rerun()  # Rerun app to update table
                
 
             
 
 def get_standing(tournament, section):
-    # st.write("This content is hidden by default. Click the header to reveal it.")
-    # st.image("https://via.placeholder.com/150", caption="Example Image")
-
-    # uploaded_file = "/Users/trangnguyen/Downloads/pairing_example_"+section+".csv"
-    # uploaded_file ="/Users/trangnguyen/Documents/GitHub/wcc-chess-events/app/data/tournaments/current_tournament/standing_"+section+".csv"
+    
     uploaded_file = "/Users/trangnguyen/Downloads/standing_example.csv"
     df = pd.read_csv(uploaded_file)
-    # Upload CSV file
-    # uploaded_file = st.file_uploader("/Users/trangnguyen/Downloads/entry_list_test.csv", type="csv")
-    uploaded_file = "/Users/trangnguyen/Downloads/standing_example.csv"
 
     if uploaded_file is not None:
         # Read the uploaded CSV file into a DataFrame
         df = pd.read_csv(uploaded_file)
         df = df.fillna('')
-
-        # df=df[['Bd','Res','White','Res.1','Black']]
-        # df = df.fillna('9999999')
-
-        # df['Bd']=df['Bd'].astype('int')
-        # df=df.replace('9999999','').replace(9999999,'')
-        # df['Bd']=df['Bd'].astype('str')
-        # df['Player'] = df['Player'].apply(lambda x: f'<a href="https://www.uschess.org/msa/MbrDtlMain.php?30581110" target="_blank">{x}</a>')
-        
         # Display the DataFrame with hyperlinks
         table_style = """
         <style>
