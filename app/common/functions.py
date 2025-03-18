@@ -42,7 +42,7 @@ def get_entry_list(tourname_name):
 
         st.markdown(styled_table, unsafe_allow_html=True)
 
-def get_pairing(tournament, section):
+def get_pairing(df,tournament, section):
     # st.write("This content is hidden by default. Click the header to reveal it.")
     # st.image("https://via.placeholder.com/150", caption="Example Image")
 
@@ -69,15 +69,15 @@ def get_pairing(tournament, section):
         """
 
     st.markdown(TABLE_STYLE, unsafe_allow_html=True)
-    uploaded_file ="/Users/trangnguyen/Documents/GitHub/wcc-chess-events/app/data/tournaments/current_tournament/pairing_"+section+".csv"
-    df = pd.read_csv(uploaded_file)
-    df=df[['Bd','Res','White','Res.1','Black']]
-    df = df.fillna('9999999')
+    # uploaded_file ="/Users/trangnguyen/Documents/GitHub/wcc-chess-events/app/data/tournaments/current_tournament/pairing_"+section+".csv"
+    # df = pd.read_csv(uploaded_file)
+    # df=df[['Bd','Res','White','Res.1','Black']]
+    # df = df.fillna('9999999')
 
-    df['Bd']=df['Bd'].astype('int')
-    df=df.replace('9999999','').replace(9999999,'')
-    # df.index=
-    # st.write(df)
+    # df['Bd']=df['Bd'].astype('int')
+    # df=df.replace('9999999','').replace(9999999,'')
+    # # df.index=
+    # # st.write(df)
 
     # Store table in session state to persist updates
     if 'open' in section:

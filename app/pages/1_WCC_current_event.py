@@ -56,18 +56,29 @@ def main():
 
     with tab3:
         st.header("Pairing Round 3 ")
-        if "result1" not in st.session_state:
-            st.session_state.result1 = None
-
-        if "result2" not in st.session_state:
-            st.session_state.result2 = None
-
         
         tourname_name="2025 George O'Rourke Memorial"
-        section='open'
+        section_option = st.selectbox("Choose section:", ["open", "u1600"])
+        uploaded_file ="/Users/trangnguyen/Downloads/pairing_all.csv"
+        df_all = pd.read_csv(uploaded_file)
+        df_all=df_all[['section','round','Bd','Res','White','Res.1','Black']]
+        
+        df_all = df_all.fillna('9999999')
+
+        df_all['Bd']=df_all['Bd'].astype('int')
+        df_all=df_all.replace('9999999','').replace(9999999,'')
+
+        df=df_all.loc[(df_all['section']==section_option)]
+        last_round=df_all['round'].max()
+        df=df.loc[df['round']==last_round]
+
+
+        st.write(f"You selected: {section_option}")
+
+        # section='open'
 
         # Inject custom CSS
-        st.subheader("OPEN SECTION")
+        # st.subheader("OPEN SECTION")
 
         # with st.expander("Click to expand"):
         #     get_pairing( tourname_name,section)
@@ -76,17 +87,11 @@ def main():
         #         st.success("Result 1 saved!")
 
 
-        st.subheader("U1600 SECTION")
-        section='u1600'
+        st.subheader(f"{section_option} SECTION")
+        # section='u1600'
 
         with st.expander("Click to expand"):
-            get_pairing( tourname_name,section)
-            # st.session_state.clear()
-            st.write("**Enter Result**")
-            if st.button("Save Result 2"):
-                st.session_state.result2 = 2
-                st.success("Result 2 saved!")
-            
+            get_pairing( df,tourname_name,section_option)
 
 
     with tab5:
