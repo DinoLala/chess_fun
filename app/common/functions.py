@@ -7,12 +7,13 @@ import streamlit as st
 def get_entry_list(tourname_name):
     # Upload CSV file
     # uploaded_file = st.file_uploader("/Users/trangnguyen/Downloads/entry_list_test.csv", type="csv")
-    uploaded_file = "/Users/trangnguyen/Downloads/entry_list_test.csv"
+    # uploaded_file = "/Users/trangnguyen/Downloads/entry_list_test.csv"
+    uploaded_file = "/Users/trangnguyen/Downloads/players.csv"
 
     if uploaded_file is not None:
         # Read the uploaded CSV file into a DataFrame
-        df = pd.read_csv(uploaded_file, index_col=0)
-        df['Player'] = df['Player'].apply(lambda x: f'<a href="https://www.uschess.org/msa/MbrDtlMain.php?30581110" target="_blank">{x}</a>')
+        df = pd.read_csv(uploaded_file)
+        df['player'] = df[['player','uscf_id']].apply(lambda x: f'<a href="https://www.uschess.org/msa/MbrDtlMain.php?{int(x[1])}" target="_blank">{x[0]}</a>', axis=1)
 
         # Display the DataFrame with hyperlinks
         table_style = """
@@ -31,14 +32,44 @@ def get_entry_list(tourname_name):
         </style>
             """
         # Display the styled table with hyperlinks
-        st.markdown(table_style, unsafe_allow_html=True)
-        st.markdown(df.to_html(escape=False), unsafe_allow_html=True)
+        # st.markdown(table_style, unsafe_allow_html=True)
+        styled_table = df[['player','rating']].to_html(escape=False)
+        # Custom CSS for header color (orange)
+        styled_table = styled_table.replace(
+            '<thead>',
+            '<thead style="background-color: green; color: orange;">'
+        )
+
+        st.markdown(styled_table, unsafe_allow_html=True)
 
 def get_pairing(tournament, section):
     # st.write("This content is hidden by default. Click the header to reveal it.")
     # st.image("https://via.placeholder.com/150", caption="Example Image")
 
-    uploaded_file = "/Users/trangnguyen/Downloads/pairing_example_"+section+".csv"
+    # uploaded_file = "/Users/trangnguyen/Downloads/pairing_example_"+section+".csv"
+    TABLE_STYLE = """
+            <style>
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    text-align: center;
+                    padding: 8px;
+                }
+                th {
+                    background-color: #f2f2f2;
+                }
+                button {
+                    padding: 5px 10px;
+                    font-size: 14px;
+                }
+            </style>
+        """
+
+    st.markdown(TABLE_STYLE, unsafe_allow_html=True)
+    uploaded_file ="/Users/trangnguyen/Documents/GitHub/wcc-chess-events/app/data/tournaments/current_tournament/pairing_"+section+".csv"
     df = pd.read_csv(uploaded_file)
     df=df[['Bd','Res','White','Res.1','Black']]
     df = df.fillna('9999999')
@@ -115,10 +146,13 @@ def get_pairing(tournament, section):
                 st.session_state.selected_row = index  # Store selected row index
 
     # Open modal when a row is selected
+    count=0
     if st.session_state.selected_row is not None:
         st.write(st.session_state.selected_row)
         index_1=st.session_state.selected_row
-        # st.write(df)
+        # white=df.at[ index_1,  'White']
+        # black=df.at[ index_1,  'Black']
+        # st.write(f'Enter result for : {white} vs {black}')
         # st.write(f"Enter Result for {st.session_state[pairing_table].at[st.session_state.selected_row, 'White']} vs {st.session_state[pairing_table].at[st.session_state.selected_row, 'Black']}")
         # st.write(pairing_table)
 
@@ -129,6 +163,9 @@ def get_pairing(tournament, section):
             # st.write(pairing_table,white, black)
             new_result = st.text_input("Enter Match Result:", key=section+"result_input")
             st.write(new_result)
+            white=df.at[ index_1,  'White']
+            black=df.at[ index_1,  'Black']
+            st.write(f'{white} vs {black}:', new_result)
 
             if st.button(section+"Save Result"):
                 # Update the result in session state
@@ -148,6 +185,9 @@ def get_pairing(tournament, section):
                 df.at[ index_1, 'Res'] = str(new_result)
                 df.at[ index_1, 'Res.1'] = str(1-float(new_result))
                 df.loc[df['Black'] == 'BYE', 'Res.1'] = '9999999'
+                white=df.at[ index_1,  'White']
+                black=df.at[ index_1,  'Black']
+                st.write(f'{white} vs {black}:', new_result)
                 # df = df.fillna('9999999')
 
                 # df['Bd']=df['Bd'].astype('int')
@@ -156,5 +196,54 @@ def get_pairing(tournament, section):
                 df.to_csv(uploaded_file)
                 st.write(df)
 
-                st.session_state.selected_row = None  # Close modal
+
+                # st.session_state.selected_row = None  # Close modal
                 st.experimental_rerun()  # Rerun app to update table
+               
+
+            
+
+def get_standing(tournament, section):
+    # st.write("This content is hidden by default. Click the header to reveal it.")
+    # st.image("https://via.placeholder.com/150", caption="Example Image")
+
+    # uploaded_file = "/Users/trangnguyen/Downloads/pairing_example_"+section+".csv"
+    # uploaded_file ="/Users/trangnguyen/Documents/GitHub/wcc-chess-events/app/data/tournaments/current_tournament/standing_"+section+".csv"
+    uploaded_file = "/Users/trangnguyen/Downloads/standing_example.csv"
+    df = pd.read_csv(uploaded_file)
+    # Upload CSV file
+    # uploaded_file = st.file_uploader("/Users/trangnguyen/Downloads/entry_list_test.csv", type="csv")
+    uploaded_file = "/Users/trangnguyen/Downloads/standing_example.csv"
+
+    if uploaded_file is not None:
+        # Read the uploaded CSV file into a DataFrame
+        df = pd.read_csv(uploaded_file)
+        df = df.fillna('')
+
+        # df=df[['Bd','Res','White','Res.1','Black']]
+        # df = df.fillna('9999999')
+
+        # df['Bd']=df['Bd'].astype('int')
+        # df=df.replace('9999999','').replace(9999999,'')
+        # df['Bd']=df['Bd'].astype('str')
+        # df['Player'] = df['Player'].apply(lambda x: f'<a href="https://www.uschess.org/msa/MbrDtlMain.php?30581110" target="_blank">{x}</a>')
+        
+        # Display the DataFrame with hyperlinks
+        table_style = """
+        <style>
+        .dataframe {
+            width: 800px;  /* Adjust width of the table */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        th {
+            text-align: left;  /* Center the header text */
+        }
+        td {
+            text-align: left;  /* Optional: center-align table data cells */
+        }
+        </style>
+            """
+        # Display the styled table with hyperlinks
+        st.markdown(table_style, unsafe_allow_html=True)
+        st.markdown(df.to_html(escape=False), unsafe_allow_html=True)
