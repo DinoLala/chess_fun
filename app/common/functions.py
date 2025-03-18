@@ -4,15 +4,18 @@ import pandas as pd
 
 import streamlit as st
 
-def get_entry_list(tourname_name):
-    # Upload CSV file
-    # uploaded_file = st.file_uploader("/Users/trangnguyen/Downloads/entry_list_test.csv", type="csv")
-    # uploaded_file = "/Users/trangnguyen/Downloads/entry_list_test.csv"
-    uploaded_file = "/Users/trangnguyen/Downloads/players.csv"
+def get_entry_list():
+    
+    uploaded_file = "./app/data/tournaments/current_tournament/entry_list.csv"
 
+    
     if uploaded_file is not None:
         # Read the uploaded CSV file into a DataFrame
         df = pd.read_csv(uploaded_file)
+        tourname_name=df['tournament'][1]
+        st.subheader(f"Entry list for {tourname_name}:")
+
+
         df['player'] = df[['player','uscf_id']].apply(lambda x: f'<a href="https://www.uschess.org/msa/MbrDtlMain.php?{int(x[1])}" target="_blank">{x[0]}</a>', axis=1)
 
         # Display the DataFrame with hyperlinks
@@ -33,7 +36,7 @@ def get_entry_list(tourname_name):
             """
         # Display the styled table with hyperlinks
         # st.markdown(table_style, unsafe_allow_html=True)
-        styled_table = df[['player','rating']].to_html(escape=False)
+        styled_table = df[['player','rating','section']].to_html(escape=False)
         # Custom CSS for header color (orange)
         styled_table = styled_table.replace(
             '<thead>',
@@ -162,9 +165,9 @@ def get_pairing(df,df_all,uploaded_file, section):
 
             
 
-def get_standing(tournament, section):
+def get_standing(tournament, section,uploaded_file):
     
-    uploaded_file = "/Users/trangnguyen/Downloads/standing_example.csv"
+
     df = pd.read_csv(uploaded_file)
 
     if uploaded_file is not None:

@@ -17,60 +17,81 @@ import requests
 
 
 st.set_page_config(layout="wide")
-import streamlit as st
-tourname_name="2025 George O'Rourke Memorial"
+
 
 
 def main():
-    st.title("Wachusset Chess club tournament")
+    st.title(f":blue[Wachusset Chess club tournament]")
     
     # Create tabs
+
     tab1, tab2, tab3,tab4, tab5 = st.tabs(["Home", "Entry List", 'Pairing','Standing',"Grandpix Table"])
     
     with tab1:
         st.header("Home Page")
     
     with tab2:
-        tourname_name="2025 George O'Rourke Memorial"
-        st.title(f"Ratings in effect for the {tourname_name}:")
-        get_entry_list(tourname_name)
+        get_entry_list()
 
-        
+    with tab3:
+            uploaded_file ="./app/data/tournaments/current_tournament/pairing_all.csv"
+            df_all = pd.read_csv(uploaded_file)
+            last_round=df_all['round'].max()
+            
+            st.subheader(f":orange[ Pairing Round {last_round}] ")
+            
+            tourname_name="2025 George O'Rourke Memorial"
+            section_list=set(df_all['section'].to_list())
+            section_option = st.selectbox("Choose section:", list(section_list))
+
+            df_all=df_all[['section','round','Bd','Res','White','Res.1','Black']]
+            df_all = df_all.fillna('9999999')
+
+            df_all['Bd']=df_all['Bd'].astype('int')
+            df_all=df_all.replace('9999999','').replace(9999999,'')
+
+            df=df_all.loc[(df_all['section']==section_option)]
+            last_round=df_all['round'].max()
+            df=df.loc[df['round']==last_round]
+            st.subheader(f"{section_option.upper()} SECTION")
+            with st.expander("Click to expand"):
+                get_pairing( df,df_all,uploaded_file,section_option)
 
 
     with tab4:
         st.title(f"{tourname_name} ")
-        section='open'
-        uploaded_file = "/Users/trangnguyen/Downloads/standing_example.csv"
-        st.subheader(f":orange[ Standing- Section: {section} Example]")
 
-        with st.expander("Click to expand"):
-            get_standing(tourname_name,section,uploaded_file)           
+        standing_uploaded_file = "./app/data/tournaments/current_tournament/standing_all.csv"
+        df_standing_all = pd.read_csv(standing_uploaded_file)
+        df_standing_all = df_standing_all.fillna('')
 
-    with tab3:
-        st.header("Pairing Round 3 ")
-        
+        section_list=set(df_standing_all['section'].to_list())
 
-        uploaded_file ="/Users/trangnguyen/Downloads/pairing_all.csv"
-        df_all = pd.read_csv(uploaded_file)
-        
-        tourname_name="2025 George O'Rourke Memorial"
-        section_list=set(df_all['section'].to_list())
-        section_option = st.selectbox("Choose section:", list(section_list))
+        for section in section_list:
+            df_standing_section=df_standing_all.loc[df_standing_all['section']==section]
 
-        df_all=df_all[['section','round','Bd','Res','White','Res.1','Black']]
-        df_all = df_all.fillna('9999999')
+            with st.expander(f":orange[{section} standing:]"):
+                # st.subheader(f":orange[ Standing- Section: {section} Example]")
+                table_style = """
+                <style>
+                .dataframe {
+                width: 800px;  /* Adjust width of the table */
+                margin-left: auto;
+                margin-right: auto;
+                }
+                th {
+                text-align: left;  /* Center the header text */
+                }
+                td {
+                text-align: left;  /* Optional: center-align table data cells */
+                }
+                </style>
+                """
+                # Display the styled table with hyperlinks
+                st.markdown(table_style, unsafe_allow_html=True)
+                st.markdown(df_standing_section.to_html(escape=False), unsafe_allow_html=True)         
 
-        df_all['Bd']=df_all['Bd'].astype('int')
-        df_all=df_all.replace('9999999','').replace(9999999,'')
-
-        df=df_all.loc[(df_all['section']==section_option)]
-        last_round=df_all['round'].max()
-        df=df.loc[df['round']==last_round]
-        st.subheader(f"{section_option} SECTION")
-        with st.expander("Click to expand"):
-            get_pairing( df,df_all,uploaded_file,section_option)
-
+    
 
     with tab5:
         
